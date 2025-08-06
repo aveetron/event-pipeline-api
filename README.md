@@ -14,6 +14,11 @@ A FastAPI-based service for publishing and consuming topics via RabbitMQ.
 - Docker (for RabbitMQ)
 - RabbitMQ server (can use Docker Compose)
 
+## Don't forget to check ruff and isort for isort
+
+- ruff check
+- isort .
+
 ## Setup
 
 1. **Clone the repository**
