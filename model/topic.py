@@ -1,17 +1,19 @@
-from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Dict, Optional, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TopicRequest(BaseModel):
-    service: str
-    date_from: str
-    date_to: str
-    parameters: Optional[Dict[str, Any]] = None
+    integration_id: str
+    service_type: str = Field(..., description="Service type: 'qi', 'analytics', or 'export'")
+
 
 class TopicResponse(BaseModel):
     message: str
-    topic_id: str
     status: str
-    submitted_at: datetime
+
+
+class ConsumerStatus(BaseModel):
+    service: str
+    status: Dict[str, str]
+    messages_processed: int

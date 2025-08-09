@@ -4,6 +4,8 @@ annotated-types==0.7.0
 anyio==4.9.0
 certifi==2025.7.14
 click==8.2.1
+clickhouse-connect==0.6.22
+pandas==2.1.4
 dnspython==2.7.0
 email_validator==2.2.0
 fastapi==0.116.1
