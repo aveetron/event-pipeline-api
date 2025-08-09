@@ -32,11 +32,11 @@ async def health_check():
 
 
 """
-    whenever you application is starting
+    Lifespan context manager for application startup and shutdown
 """
-@app.on_event("startup")
-async def startup_event():
-    """Initialize connections and start consumer on startup"""
+@app.lifespan
+async def lifespan(app):
+    # Startup logic
     print("🔄 Starting up services...")
     
     # Initialize ClickHouse connection
@@ -50,6 +50,27 @@ async def startup_event():
     
     # Start consumer in background
     asyncio.create_task(start_consumer())
+    
+    yield  # This separates startup from shutdown logic
+    
+    # Shutdown logic
+    print("🔄 Shutting down services...")
+    
+    # Disconnect from RabbitMQ
+    try:
+        await rabbitmq_client.disconnect()
+        print("✅ Disconnected from RabbitMQ")
+    except Exception as e:
+        print(f"❌ Error disconnecting from RabbitMQ: {e}")
+    
+    # Disconnect from ClickHouse
+    try:
+        await clickhouse_client.disconnect()
+        print("✅ Disconnected from ClickHouse")
+    except Exception as e:
+        print(f"❌ Error disconnecting from ClickHouse: {e}")
+    
+    print("✅ Shutdown complete")
 
 
 @app.post("/publish-topic", response_model=TopicResponse)
@@ -221,23 +242,4 @@ async def restart_consumer(background_tasks: BackgroundTasks):
             detail=f"Failed to restart consumer: {str(e)}"
         )
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Close connections on shutdown"""
-    print("🔄 Shutting down services...")
-    
-    # Disconnect from RabbitMQ
-    try:
-        await rabbitmq_client.disconnect()
-        print("✅ Disconnected from RabbitMQ")
-    except Exception as e:
-        print(f"❌ Error disconnecting from RabbitMQ: {e}")
-    
-    # Disconnect from ClickHouse
-    try:
-        await clickhouse_client.disconnect()
-        print("✅ Disconnected from ClickHouse")
-    except Exception as e:
-        print(f"❌ Error disconnecting from ClickHouse: {e}")
-    
-    print("✅ Shutdown complete")
+# Shutdown event handler has been moved to the lifespan context manager
